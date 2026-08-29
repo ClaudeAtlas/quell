@@ -27,7 +27,7 @@ function isVertical(dir)   { return (dir==North || dir==South) }
 function adjust_To_(val, max)             { return ((val+max) mod max) }
 function num_IsBetween_And_(n, low, high) { return(n>=low && n<=high)  }
 
-function delta(b) { return (choose 1 when (b) 0 otherwise) }
+function delta(b) { return (choose yield 1 when (b) yield 0 otherwise) }
 
 // ---------
 // Math functions 
@@ -71,20 +71,20 @@ procedure DrawDir_With_(dir, color) { Drop__Times(color, codeOfDir_(dir))   }
 function  currentDirWith_(color)    { return(decodedDir_(numStones(color))) } /* PRECOND: * there is a Dir represented (between 1 to 4 color stones) */
 
 function codeOfDir_(dir) {
-  return (matching (dir) select
-            1 on North
-            2 on East
-            3 on South
-            4 on West
+  return (matching (dir) yield
+            1 on North yield
+            2 on East yield
+            3 on South yield
+            4 on West yield
             boom(msgNotExpected("Direction")) otherwise)
 }
 
 function decodedDir_(code) { /* PRECOND: code is the coding of a Dir (between 1 and 4) */
-  return(matching (code) select
-           North on 1
-           East  on 2
-           South on 3
-           West  on 4
+  return(matching (code) yield
+           North on 1 yield
+           East  on 2 yield
+           South on 3 yield
+           West  on 4 yield
            boom(msgNotACodeFor_("Direction")) otherwise)
 }
 
@@ -97,14 +97,14 @@ procedure DrawBool_With_(b, color) { Drop__Times(color, codeOfBool_(b))     }
 function  currentBoolWith_(color)  { return(decodedBool_(numStones(color))) } /* PRECOND: there is a bool represented in the current cell with the given color */
 
 function codeOfBool_(b) {
-  return (choose 1 when (b)
+  return (choose yield 1 when (b) yield
                  0 otherwise)
 }
 
 function decodedBool_(code) { /* PRECOND: code is the coding of a Bool (either 0 or 1) */
-  return(matching (code) select
-           True   on 1
-           False  on 0
+  return(matching (code) yield
+           True   on 1 yield
+           False  on 0 yield
            boom(msgNotACodeFor_("Bool")) otherwise)
 }
 
@@ -167,14 +167,14 @@ function substractOneFromDirCodes_(codes) {
 // Pairs
 // ---------
 function fst(pair) {
-    return(matching (pair) select 
-               x on (x,y)
+    return(matching (pair) yield 
+               x on (x,y) yield
                boom(msgNotExpected("pair (A,B)")) otherwise)
 }
 
 function snd(pair) {
-    return(matching (pair) select 
-               y on (x,y)
+    return(matching (pair) yield 
+               y on (x,y) yield
                boom(msgNotExpected("pair (A,B)")) otherwise)
 }
 
@@ -186,35 +186,35 @@ type Maybe is variant {
   case Just     { field fromJust }  
 }
 
-function isNothing(mv) { return(matching (mv) select True on Nothing False otherwise) }
+function isNothing(mv) { return(matching (mv) yield True on Nothing yield False otherwise) }
 function just(elem)    { return (Just(fromJust <- elem)) }
 
 function firstOf_Or_(md1, md2) {
- return(matching (md1) select
-          md1 on Just
+ return(matching (md1) yield
+          md1 on Just(fromJust -> fromJust) yield
           md2 otherwise)
 }
 
 procedure DrawMNum_With_(mNum, color) {
-  Drop__Times(color, matching (mNum) select
-                       1 + fromJust(mNum) on Just
+  Drop__Times(color, matching (mNum) yield
+                       1 + fromJust(mNum) on Just(fromJust -> fromJust) yield
                        0                  otherwise)
 }
 
 function currentMNumWith_(color) {
-  return (choose
-            Nothing                   when (numStones(color) == 0)
+  return (choose yield
+            Nothing                   when (numStones(color) == 0) yield
             just(numStones(color)-1)  otherwise)
 }
 
 procedure DrawMDir_With_(mdir, color) { Drop__Times(color, codeOfMDir_(mdir)) }
 function codeOfMDir_(mdir) {
-  return (matching (mdir) select codeOfDir_(fromJust(mdir)) on Just
+  return (matching (mdir) yield codeOfDir_(fromJust(mdir)) on Just(fromJust -> fromJust) yield
                                  0                          otherwise)
 }
 
 function currentMDirWith_(color) { /* PRECOND: there is a MDir represented (between 1 to 5 color stones) */
-  return(choose just(currentDirWith_(color)) when (hasStones(color))
+  return(choose yield just(currentDirWith_(color)) when (hasStones(color)) yield
                 Nothing                      otherwise)
 }
 
@@ -256,16 +256,16 @@ function nextPosOf_To_(pos,dir) {
 }
 
 function vOffset (dir) {
-  return (matching (dir) select
-            -1 on South
-             1 on North
+  return (matching (dir) yield
+            -1 on South yield
+             1 on North yield
              0 otherwise) 
 }
 
 function hOffset (dir) {
-  return (matching (dir) select
-            -1 on West
-             1 on East
+  return (matching (dir) yield
+            -1 on West yield
+             1 on East yield
              0 otherwise) 
 }
 
@@ -297,16 +297,16 @@ procedure DrawGender_With_(gender, color) { Drop__Times(color, codeOfGender_(gen
 function  currentGenderWith_(color)       { return(decodeGender_(numStones(color)))   } /* PRECOND: there is a gender represented (between 1 to 2 color stones) */
 
 function codeOfGender_(gender) {
-  return (matching (gender) select
-            1 on Femenine
-            2 on Masculine
+  return (matching (gender) yield
+            1 on Femenine yield
+            2 on Masculine yield
             boom(msgNotExpected("Gender")) otherwise)
 }
 
 function decodeGender_(code) { /* PRECOND: code is the coding of a Gender (between 1 and 2) */
-  return(matching (code) select
-           Femenine   on 1
-           Masculine  on 2
+  return(matching (code) yield
+           Femenine   on 1 yield
+           Masculine  on 2 yield
            boom(msgNotACodeFor_("Gender")) otherwise)
 }
 

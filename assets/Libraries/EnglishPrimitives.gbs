@@ -19,20 +19,20 @@ type Colour is variant {
 function colour_(dir) { return (dir) }
 
 function colorEn2Sp(color) {
-  return(matching (color) select
-           Rojo   on Red
-           Verde  on Green
-           Azul   on Blue
-           Negro  on Black
+  return(matching (color) yield
+           Rojo   on Red yield
+           Verde  on Green yield
+           Azul   on Blue yield
+           Negro  on Black yield
            boom(msgNotExpected("Colour")) otherwise)
 }
 
 function colorSp2En(color) {
-  return(matching (color) select
-           Red   on Rojo    
-           Green on Verde   
-           Blue  on Azul   
-           Black on Negro
+  return(matching (color) yield
+           Red   on Rojo yield    
+           Green on Verde yield   
+           Blue  on Azul yield   
+           Black on Negro yield
            boom(msgNotExpected("Color")) otherwise)
 }
 
@@ -66,20 +66,20 @@ type Direction is variant {
 function direction_(dir) { return (dir) }
 
 function dirEn2Sp(dir) {
-  return(matching (dir) select
-           Norte on North
-           Este  on East
-           Sur   on South
-           Oeste on West
+  return(matching (dir) yield
+           Norte on North yield
+           Este  on East yield
+           Sur   on South yield
+           Oeste on West yield
            boom(msgNotExpected("Direction")) otherwise)
 }
 
 function dirSp2En(dir) {
-  return(matching (dir) select
-           North on Norte
-           East  on Este 
-           South on Sur  
-           West  on Oeste
+  return(matching (dir) yield
+           North on Norte yield
+           East  on Este yield 
+           South on Sur yield  
+           West  on Oeste yield
            boom(msgNotExpected("Dirección")) otherwise)
 }
 
@@ -103,8 +103,8 @@ function maxDirection() { return(dirSp2En(maxDir())) }
 // Lists
 // ---------
 function isEmpty(xs) { return(esVacía(xs)) }
-function head(xs)    { return(primero(xs)) }
-function tail(xs)    { return(resto(xs))   }
+// [migración] lo define Gobstones 4: function head(xs)    { return(primero(xs)) }
+// [migración] lo define Gobstones 4: function tail(xs)    { return(resto(xs))   }
 
 // ---------
 // ERROR MESSAGES

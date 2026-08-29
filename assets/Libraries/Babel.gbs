@@ -17,8 +17,8 @@ type Language is variant {
 }
 
 function babel(msgEn, msgSp) { 
-  return(matching (language()) select 
-           msgSp on Spanish
+  return(matching (language()) yield 
+           msgSp on Spanish yield
            msgEn otherwise)
 }
 /* ============================================================================================================

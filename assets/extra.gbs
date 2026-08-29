@@ -17,8 +17,8 @@ type Language is variant {
 }
 
 function babel(msgEn, msgSp) { 
-  return(matching (language()) select 
-           msgSp on Spanish
+  return(matching (language()) yield 
+           msgSp on Spanish yield
            msgEn otherwise)
 }
 /* ============================================================================================================
@@ -46,20 +46,20 @@ type Colour is variant {
 function colour_(dir) { return (dir) }
 
 function colorEn2Sp(color) {
-  return(matching (color) select
-           Rojo   on Red
-           Verde  on Green
-           Azul   on Blue
-           Negro  on Black
+  return(matching (color) yield
+           Rojo   on Red yield
+           Verde  on Green yield
+           Azul   on Blue yield
+           Negro  on Black yield
            boom(msgNotExpected("Colour")) otherwise)
 }
 
 function colorSp2En(color) {
-  return(matching (color) select
-           Red   on Rojo    
-           Green on Verde   
-           Blue  on Azul   
-           Black on Negro
+  return(matching (color) yield
+           Red   on Rojo yield    
+           Green on Verde yield   
+           Blue  on Azul yield   
+           Black on Negro yield
            boom(msgNotExpected("Color")) otherwise)
 }
 
@@ -93,20 +93,20 @@ type Direction is variant {
 function direction_(dir) { return (dir) }
 
 function dirEn2Sp(dir) {
-  return(matching (dir) select
-           Norte on North
-           Este  on East
-           Sur   on South
-           Oeste on West
+  return(matching (dir) yield
+           Norte on North yield
+           Este  on East yield
+           Sur   on South yield
+           Oeste on West yield
            boom(msgNotExpected("Direction")) otherwise)
 }
 
 function dirSp2En(dir) {
-  return(matching (dir) select
-           North on Norte
-           East  on Este 
-           South on Sur  
-           West  on Oeste
+  return(matching (dir) yield
+           North on Norte yield
+           East  on Este yield 
+           South on Sur yield  
+           West  on Oeste yield
            boom(msgNotExpected("Dirección")) otherwise)
 }
 
@@ -130,8 +130,8 @@ function maxDirection() { return(dirSp2En(maxDir())) }
 // Lists
 // ---------
 function isEmpty(xs) { return(esVacía(xs)) }
-function head(xs)    { return(primero(xs)) }
-function tail(xs)    { return(resto(xs))   }
+// [migración] lo define Gobstones 4: function head(xs)    { return(primero(xs)) }
+// [migración] lo define Gobstones 4: function tail(xs)    { return(resto(xs))   }
 
 // ---------
 // ERROR MESSAGES
@@ -186,7 +186,7 @@ function isVertical(dir)   { return (dir==North || dir==South) }
 function adjust_To_(val, max)             { return ((val+max) mod max) }
 function num_IsBetween_And_(n, low, high) { return(n>=low && n<=high)  }
 
-function delta(b) { return (choose 1 when (b) 0 otherwise) }
+function delta(b) { return (choose yield 1 when (b) yield 0 otherwise) }
 
 // ---------
 // Math functions 
@@ -230,20 +230,20 @@ procedure DrawDir_With_(dir, color) { Drop__Times(color, codeOfDir_(dir))   }
 function  currentDirWith_(color)    { return(decodedDir_(numStones(color))) } /* PRECOND: * there is a Dir represented (between 1 to 4 color stones) */
 
 function codeOfDir_(dir) {
-  return (matching (dir) select
-            1 on North
-            2 on East
-            3 on South
-            4 on West
+  return (matching (dir) yield
+            1 on North yield
+            2 on East yield
+            3 on South yield
+            4 on West yield
             boom(msgNotExpected("Direction")) otherwise)
 }
 
 function decodedDir_(code) { /* PRECOND: code is the coding of a Dir (between 1 and 4) */
-  return(matching (code) select
-           North on 1
-           East  on 2
-           South on 3
-           West  on 4
+  return(matching (code) yield
+           North on 1 yield
+           East  on 2 yield
+           South on 3 yield
+           West  on 4 yield
            boom(msgNotACodeFor_("Direction")) otherwise)
 }
 
@@ -256,14 +256,14 @@ procedure DrawBool_With_(b, color) { Drop__Times(color, codeOfBool_(b))     }
 function  currentBoolWith_(color)  { return(decodedBool_(numStones(color))) } /* PRECOND: there is a bool represented in the current cell with the given color */
 
 function codeOfBool_(b) {
-  return (choose 1 when (b)
+  return (choose yield 1 when (b) yield
                  0 otherwise)
 }
 
 function decodedBool_(code) { /* PRECOND: code is the coding of a Bool (either 0 or 1) */
-  return(matching (code) select
-           True   on 1
-           False  on 0
+  return(matching (code) yield
+           True   on 1 yield
+           False  on 0 yield
            boom(msgNotACodeFor_("Bool")) otherwise)
 }
 
@@ -326,14 +326,14 @@ function substractOneFromDirCodes_(codes) {
 // Pairs
 // ---------
 function fst(pair) {
-    return(matching (pair) select 
-               x on (x,y)
+    return(matching (pair) yield 
+               x on (x,y) yield
                boom(msgNotExpected("pair (A,B)")) otherwise)
 }
 
 function snd(pair) {
-    return(matching (pair) select 
-               y on (x,y)
+    return(matching (pair) yield 
+               y on (x,y) yield
                boom(msgNotExpected("pair (A,B)")) otherwise)
 }
 
@@ -345,35 +345,35 @@ type Maybe is variant {
   case Just     { field fromJust }  
 }
 
-function isNothing(mv) { return(matching (mv) select True on Nothing False otherwise) }
+function isNothing(mv) { return(matching (mv) yield True on Nothing yield False otherwise) }
 function just(elem)    { return (Just(fromJust <- elem)) }
 
 function firstOf_Or_(md1, md2) {
- return(matching (md1) select
-          md1 on Just
+ return(matching (md1) yield
+          md1 on Just(fromJust -> fromJust) yield
           md2 otherwise)
 }
 
 procedure DrawMNum_With_(mNum, color) {
-  Drop__Times(color, matching (mNum) select
-                       1 + fromJust(mNum) on Just
+  Drop__Times(color, matching (mNum) yield
+                       1 + fromJust(mNum) on Just(fromJust -> fromJust) yield
                        0                  otherwise)
 }
 
 function currentMNumWith_(color) {
-  return (choose
-            Nothing                   when (numStones(color) == 0)
+  return (choose yield
+            Nothing                   when (numStones(color) == 0) yield
             just(numStones(color)-1)  otherwise)
 }
 
 procedure DrawMDir_With_(mdir, color) { Drop__Times(color, codeOfMDir_(mdir)) }
 function codeOfMDir_(mdir) {
-  return (matching (mdir) select codeOfDir_(fromJust(mdir)) on Just
+  return (matching (mdir) yield codeOfDir_(fromJust(mdir)) on Just(fromJust -> fromJust) yield
                                  0                          otherwise)
 }
 
 function currentMDirWith_(color) { /* PRECOND: there is a MDir represented (between 1 to 5 color stones) */
-  return(choose just(currentDirWith_(color)) when (hasStones(color))
+  return(choose yield just(currentDirWith_(color)) when (hasStones(color)) yield
                 Nothing                      otherwise)
 }
 
@@ -415,16 +415,16 @@ function nextPosOf_To_(pos,dir) {
 }
 
 function vOffset (dir) {
-  return (matching (dir) select
-            -1 on South
-             1 on North
+  return (matching (dir) yield
+            -1 on South yield
+             1 on North yield
              0 otherwise) 
 }
 
 function hOffset (dir) {
-  return (matching (dir) select
-            -1 on West
-             1 on East
+  return (matching (dir) yield
+            -1 on West yield
+             1 on East yield
              0 otherwise) 
 }
 
@@ -456,16 +456,16 @@ procedure DrawGender_With_(gender, color) { Drop__Times(color, codeOfGender_(gen
 function  currentGenderWith_(color)       { return(decodeGender_(numStones(color)))   } /* PRECOND: there is a gender represented (between 1 to 2 color stones) */
 
 function codeOfGender_(gender) {
-  return (matching (gender) select
-            1 on Femenine
-            2 on Masculine
+  return (matching (gender) yield
+            1 on Femenine yield
+            2 on Masculine yield
             boom(msgNotExpected("Gender")) otherwise)
 }
 
 function decodeGender_(code) { /* PRECOND: code is the coding of a Gender (between 1 and 2) */
-  return(matching (code) select
-           Femenine   on 1
-           Masculine  on 2
+  return(matching (code) yield
+           Femenine   on 1 yield
+           Masculine  on 2 yield
            boom(msgNotACodeFor_("Gender")) otherwise)
 }
 
@@ -712,20 +712,20 @@ procedure DrawStaticQBall() {
 
 procedure DrawQBall_(ball)   { 
   /* PURPOSE: draw the ball in the current cell (ignoring bpos) */
-  switch (ball) to {
-    QBallAt(pos)               -> { DrawStaticQBall()      }
-    QBallTo(pos, dir, beaming) -> { DrawMovingQBall_(ball) }
-    NoBall                     -> { }
-  }
+  switch (ball)  
+    on QBallAt(bpos -> pos)               do { DrawStaticQBall()      }
+    on QBallTo(bpos -> pos, goingTo -> dir, beaming -> beaming) do { DrawMovingQBall_(ball) }
+    on NoBall                     do { }
+   
 }  
 
 procedure DrawQBall_WithDHint_(ball, mdir)   { 
-  switch (ball) to {
-    QBallAt(pos)               -> { GoToCell_(pos); DrawStaticQBall()
+  switch (ball)  
+    on QBallAt(bpos -> pos)               do { GoToCell_(pos); DrawStaticQBall()
                                     DrawMDir_With_(mdir, ballColor())      }
-    QBallTo(pos, dir, beaming) -> { GoToCell_(pos); DrawMovingQBall_(ball) }
-    NoBall                     -> { }
-  }
+    on QBallTo(bpos -> pos, goingTo -> dir, beaming -> beaming) do { GoToCell_(pos); DrawMovingQBall_(ball) }
+    on NoBall                     do { }
+   
 }
 
 // ---------
@@ -770,21 +770,21 @@ procedure DrawQRow_WithSpikesTo_(row, spikesDir) {
 procedure DrawQElemId_(qelem) { Drop__Times(qelemColor(), codeOfQelem_(qelem)) }
 procedure DrawQElem_WithSpikesTo_(qelem, spikesDir) {
   DrawQElemId_(qelem)
-  switch (qelem) to {
-    Pearl              -> { DrawBool_With_(True               , attrBColor())            }
-    Corner(dir)        -> { DrawDir_With_ (dir                , attrAColor())            }
-    Angle(dir)         -> { DrawDir_With_ (dir                , attrAColor())            }
-    Limit(pointsTo)    -> { DrawDir_With_ (pointsTo           , attrAColor())            }
-    Portal(id, target) -> { DrawPos_With_ (target             , attrAColor())            
+  switch (qelem)  
+    on Pearl              do { DrawBool_With_(True               , attrBColor())            }
+    on Corner(dir -> dir)        do { DrawDir_With_ (dir                , attrAColor())            }
+    on Angle(dir -> dir)         do { DrawDir_With_ (dir                , attrAColor())            }
+    on Limit(pointsTo -> pointsTo)    do { DrawDir_With_ (pointsTo           , attrAColor())            }
+    on Portal(id -> id, target -> target) do { DrawPos_With_ (target             , attrAColor())            
                             DrawNum_With_ (id                 , attrBColor())            }
-    Gate(closed)       -> { DrawBool_With_(closed             , attrBColor()) }
-    Spike(dir)         -> { DrawDir_With_(dir                 , attrAColor())            }
-    RotableSpike       -> { Assert_OrFail_(not isNothing(spikesDir), msgInvalidQuell()) // spikesDir cannot be Nothing if there are RotableSpikes
+    on Gate(closed -> closed)       do { DrawBool_With_(closed             , attrBColor()) }
+    on Spike(pointsTo -> dir)         do { DrawDir_With_(dir                 , attrAColor())            }
+    on RotableSpike       do { Assert_OrFail_(not isNothing(spikesDir), msgInvalidQuell()) // spikesDir cannot be Nothing if there are RotableSpikes
                             DrawDir_With_(fromJust(spikesDir) , attrAColor())            } 
-    Switch             -> { Assert_OrFail_(not isNothing(spikesDir), msgInvalidQuell()) // spikesDir cannot be Nothing if there are Switches
+    on Switch             do { Assert_OrFail_(not isNothing(spikesDir), msgInvalidQuell()) // spikesDir cannot be Nothing if there are Switches
                             DrawDir_With_(fromJust(spikesDir) , attrAColor())            } 
-    _                  -> { }
-    }
+    else                  do { }
+     
 }
 
 procedure DrawJewel_(hits) { DrawNum_With_(hits, attrAColor()) }
@@ -938,7 +938,7 @@ procedure ProcessMoveOf_To_(theBall,mdir) {
 // ---------
 function dirOfMoveDeterminedBy_And_(ball, mdir) {
   /* PRECOND: movementOccursWith_(ball)And_(mdir), that is, ball is different from NoBall, and if it is not moving, mdir is not Nothing */
-  return(choose goingTo(ball)  when (isMovingBall_(ball))
+  return(choose yield goingTo(ball)  when (isMovingBall_(ball)) yield
                 fromJust(mdir) otherwise)
 }
 
@@ -1018,7 +1018,7 @@ procedure ConsiderStoppingOrBouncingBall_MovingTo_Leaving_Entering_With_At_(ball
            { HitJewelAt_AndReturnTo_(nextPos, bpos(ball)) } // Jewel can be hit across borders...
          // If stopping against something spiky, ball pops
          if (not isSpiky_ComingFrom_WithRotablesTo_(nextQE, dir, currentTopSpikesDir()))
-           { DrawQBall_WithDHint_(stoppedBall_(ball), choose currentTopDHint() when (currentTopShowHint()) 
+           { DrawQBall_WithDHint_(stoppedBall_(ball), choose yield currentTopDHint() when (currentTopShowHint()) yield 
                                                              Nothing           otherwise) }
                       // bpos(ball) is the current pos, because no movement occurs
        } 
@@ -1110,7 +1110,7 @@ procedure RotateCurrentQElemTo_IfNeeded(dir) {
 procedure AdjustTopHintTo_(dir) {
   currentDHint := currentTopDHint()
   currentNHint := currentTopNHint()
-  SetTopHintTo_(choose just(fromJust(currentNHint)-1) when (just(dir)==currentDHint) 
+  SetTopHintTo_(choose yield just(fromJust(currentNHint)-1) when (just(dir)==currentDHint) yield 
                        Nothing                        otherwise)
 }
 
@@ -1258,55 +1258,55 @@ function rS()     { return(RotableSpike)                         }
 // ---------------------------
 //  Detection functions
 // ---------------------------
-function isEmpty_(qelem)        { return(matching (qelem)  select True  on Empty        False otherwise) }
-function isPearl_(qelem)        { return(matching (qelem)  select True  on Pearl        False otherwise) }
-function isWall_(qelem)         { return(matching (qelem)  select True  on Wall         False otherwise) }
-function isCorner_(qelem)       { return(matching (qelem)  select True  on Corner       False otherwise) }
-function isAngle_(qelem)        { return(matching (qelem)  select True  on Angle        False otherwise) }
-function isLimit_(qelem)        { return(matching (qelem)  select True  on Limit        False otherwise) }
-function isPortal_(qelem)       { return(matching (qelem)  select True  on Portal       False otherwise) }
-function isGate_(qelem)         { return(matching (qelem)  select True  on Gate         False otherwise) }
-function isSpike_(qelem)        { return(matching (qelem)  select True  on Spike        False otherwise) }
-function isMultispike_(qelem)   { return(matching (qelem)  select True  on Multispike   False otherwise) }
-function isRotableSpike_(qelem) { return(matching (qelem)  select True  on RotableSpike False otherwise) }
-function isSwitch_(qelem)       { return(matching (qelem)  select True  on Switch       False otherwise) }
-function isOut_(qelem)          { return(matching (qelem)  select True  on Out          False otherwise) }
+function isEmpty_(qelem)        { return(matching (qelem)  yield True  on Empty yield        False otherwise) }
+function isPearl_(qelem)        { return(matching (qelem)  yield True  on Pearl yield        False otherwise) }
+function isWall_(qelem)         { return(matching (qelem)  yield True  on Wall yield         False otherwise) }
+function isCorner_(qelem)       { return(matching (qelem)  yield True  on Corner(dir -> dir) yield       False otherwise) }
+function isAngle_(qelem)        { return(matching (qelem)  yield True  on Angle(dir -> dir) yield        False otherwise) }
+function isLimit_(qelem)        { return(matching (qelem)  yield True  on Limit(pointsTo -> pointsTo) yield        False otherwise) }
+function isPortal_(qelem)       { return(matching (qelem)  yield True  on Portal(id -> id, target -> target) yield       False otherwise) }
+function isGate_(qelem)         { return(matching (qelem)  yield True  on Gate(closed -> closed) yield         False otherwise) }
+function isSpike_(qelem)        { return(matching (qelem)  yield True  on Spike(pointsTo -> pointsTo) yield        False otherwise) }
+function isMultispike_(qelem)   { return(matching (qelem)  yield True  on Multispike yield   False otherwise) }
+function isRotableSpike_(qelem) { return(matching (qelem)  yield True  on RotableSpike yield False otherwise) }
+function isSwitch_(qelem)       { return(matching (qelem)  yield True  on Switch yield       False otherwise) }
+function isOut_(qelem)          { return(matching (qelem)  yield True  on Out yield          False otherwise) }
 
 function isOpen_(qelem) {
-  return(matching (qelem)  select True              on Empty
-                                  True              on Portal
-                                  True              on Switch
-                                  True              on Limit
-                                  not closed(qelem) on Gate
+  return(matching (qelem)  yield True              on Empty yield
+                                  True              on Portal(id -> id, target -> target) yield
+                                  True              on Switch yield
+                                  True              on Limit(pointsTo -> pointsTo) yield
+                                  not closed(qelem) on Gate(closed -> closed) yield
                                   False             otherwise)
 } 
 
 function isSpiky_ComingFrom_WithRotablesTo_(qelem, dir, rmdir) {
-  return (matching (qelem) select True on Multispike
-                                  dir==opposite(pointsTo(qelem)) on Spike
-                                  dir==opposite(fromJust(rmdir)) on RotableSpike
+  return (matching (qelem) yield True on Multispike yield
+                                  dir==opposite(pointsTo(qelem)) on Spike(pointsTo -> pointsTo) yield
+                                  dir==opposite(fromJust(rmdir)) on RotableSpike yield
                                   False                          otherwise)
 }
 
 // --------------------------- 
-function isNoJewel_(jewel)      { return(matching (jewel)  select True             on NoJewel False otherwise) }
-function isJewel_(jewel)        { return(matching (jewel)  select True             on QJewel  False otherwise) }
+function isNoJewel_(jewel)      { return(matching (jewel)  yield True             on NoJewel yield False otherwise) }
+function isJewel_(jewel)        { return(matching (jewel)  yield True             on QJewel(jpos -> jpos, hits -> hits) yield  False otherwise) }
 
-function isFound_(jewel)        { return(matching (jewel)  select (hits(jewel)==0) on QJewel  False otherwise) }
+function isFound_(jewel)        { return(matching (jewel)  yield (hits(jewel)==0) on QJewel(jpos -> jpos, hits -> hits) yield  False otherwise) }
 
 // ---------------------------      
-function isNoBall_(qball)       { return(matching (qball)  select True  on NoBall            False otherwise) }
-function isBall_(qball)         { return(matching (qball)  select False on NoBall            True  otherwise) }
-function isStaticBall_(qball)   { return(matching (qball)  select True  on QBallAt           False otherwise) }
-function isMovingBall_(qball)   { return(matching (qball)  select True  on QBallTo           False otherwise) }
-function isBeamingBall_(qball)  { return(matching (qball)  select beaming(qball) on QBallTo  False otherwise)}
+function isNoBall_(qball)       { return(matching (qball)  yield True  on NoBall yield            False otherwise) }
+function isBall_(qball)         { return(matching (qball)  yield False on NoBall yield            True  otherwise) }
+function isStaticBall_(qball)   { return(matching (qball)  yield True  on QBallAt(bpos -> bpos) yield           False otherwise) }
+function isMovingBall_(qball)   { return(matching (qball)  yield True  on QBallTo(bpos -> bpos, goingTo -> goingTo, beaming -> beaming) yield           False otherwise) }
+function isBeamingBall_(qball)  { return(matching (qball)  yield beaming(qball) on QBallTo(bpos -> bpos, goingTo -> goingTo, beaming -> beaming) yield  False otherwise)}
 
 // ---------------------------
-function isNoToken_(qtoken)     { return(matching (qtoken) select True  on NoToken           False  otherwise) }
-function isToken_(qtoken)       { return(matching (qtoken) select False on NoToken           True  otherwise) }
-function isABox_(qtoken)        { return(matching (qtoken) select True  on ABox              False otherwise) }
-function isAPearl_(qtoken)      { return(matching (qtoken) select True  on APearl            False otherwise) }
-function isAJewel_(qtoken)      { return(matching (qtoken) select True  on AJewel            False otherwise) }
+function isNoToken_(qtoken)     { return(matching (qtoken) yield True  on NoToken yield           False  otherwise) }
+function isToken_(qtoken)       { return(matching (qtoken) yield False on NoToken yield           True  otherwise) }
+function isABox_(qtoken)        { return(matching (qtoken) yield True  on ABox yield              False otherwise) }
+function isAPearl_(qtoken)      { return(matching (qtoken) yield True  on APearl yield            False otherwise) }
+function isAJewel_(qtoken)      { return(matching (qtoken) yield True  on AJewel yield            False otherwise) }
 
 // ---------------------------
 //  Ball modification
@@ -1338,24 +1338,24 @@ function ballBeamingOn_(quell) { return(beaming(ball(quel)))        } /* PRECOND
 //  Hint information on Quell
 // ---------------------------
 function firstTutorialDHintOn_(quell) {
-  return(choose just(head(solution(quell))) when (isTutorial(quell))
+  return(choose yield just(head(solution(quell))) when (isTutorial(quell)) yield
                 Nothing otherwise)
 }
 
 function dHintOn_(quell) {
-  return(choose just(elemAtIndex_In_(fromJust(rightMoves(quell))
-                                    ,solution(quell)))           when (not isNothing(rightMoves(quell)))
+  return(choose yield just(elemAtIndex_In_(fromJust(rightMoves(quell))
+                                    ,solution(quell)))           when (not isNothing(rightMoves(quell))) yield
                 Nothing                                          otherwise)
 }
 
 function nHintOn_(quell) {
-  return(choose just(minMoves(quell)-fromJust(rightMoves(quell))) when (not isNothing(rightMoves(quell)))
+  return(choose yield just(minMoves(quell)-fromJust(rightMoves(quell))) when (not isNothing(rightMoves(quell))) yield
                 Nothing                                           otherwise)
 }
 
 function dHintForNHint_On_(mi, quell) { 
-  return(choose just(elemAtIndex_In_(minMoves(quell)-fromJust(mi)
-                                    ,solution(quell)))            when (not isNothing(mi) && mi/=just(0))
+  return(choose yield just(elemAtIndex_In_(minMoves(quell)-fromJust(mi)
+                                    ,solution(quell)))            when (not isNothing(mi) && mi/=just(0)) yield
                 Nothing                                           otherwise)
 }
 
@@ -1408,37 +1408,37 @@ procedure ProcessOneStep()       { ProcessStepTo_(Nothing)   }
 function currentQBall() {
   code := currentNumWith_(ballColor())
   pos  := currentPos()
-  return (choose
-    NoBall when (code==0)
-    QBallTo(bpos <- pos, goingTo <- decodedDir_(code)   , beaming <- False) when (num_IsBetween_And_(code,  1,  4))
-    QBallTo(bpos <- pos, goingTo <- decodedDir_(code-10), beaming <- True)  when (num_IsBetween_And_(code, 11, 14))
+  return (choose yield
+    NoBall when (code==0) yield
+    QBallTo(bpos <- pos, goingTo <- decodedDir_(code)   , beaming <- False) when (num_IsBetween_And_(code,  1,  4)) yield
+    QBallTo(bpos <- pos, goingTo <- decodedDir_(code-10), beaming <- True)  when (num_IsBetween_And_(code, 11, 14)) yield
     QBallAt(bpos <- pos)                                                    otherwise) // ballColor stones are between 5 and 9
 }
 
 function currentQElemTo_(dir) { Move(dir); return (currentQElem()) } /* PRECOND: there is a cell to dir */
 function currentQElem() {
   /* PRECOND: * there is a qelem represented in the current cell */
-  return(matching (numStones(qelemColor())) select
-          Empty                 on 0
-          currentCorner()       on 1
-          currentAngle()        on 2
-          currentLimit()        on 3
-          currentPortal()       on 4
-          currentGate()         on 5
-          currentSpike()        on 6
-          Multispike            on 7
-          RotableSpike          on 8
-          Switch                on 9
-          Wall                  on 10
-          Out                   on 11
+  return(matching (numStones(qelemColor())) yield
+          Empty                 on 0 yield
+          currentCorner()       on 1 yield
+          currentAngle()        on 2 yield
+          currentLimit()        on 3 yield
+          currentPortal()       on 4 yield
+          currentGate()         on 5 yield
+          currentSpike()        on 6 yield
+          Multispike            on 7 yield
+          RotableSpike          on 8 yield
+          Switch                on 9 yield
+          Wall                  on 10 yield
+          Out                   on 11 yield
           boom(msgNoQElement()) otherwise)
 }
 
 function currentQToken() {
-  return(choose ABox    when (hasBox())
-                APearl  when (hasPearl())
-                AJewel  when (hasJewel())
-                ABall   when (hasBall())
+  return(choose yield ABox    when (hasBox()) yield
+                APearl  when (hasPearl()) yield
+                AJewel  when (hasJewel()) yield
+                ABall   when (hasBall()) yield
                 NoToken otherwise)
 }
 
@@ -1639,20 +1639,20 @@ function attrBColor() { return(Red)   }
 // Codes
 // ---------
 function codeOfQelem_(qelem) {
-  return (matching (qelem) select
-             0 on Empty
-             0 on Pearl   // Pearls are always on Empty cells, and drawn with attribute colors
-             1 on Corner
-             2 on Angle
-             3 on Limit
-             4 on Portal
-             5 on Gate
-             6 on Spike
-             7 on Multispike
-             8 on RotableSpike
-             9 on Switch
-            10 on Wall
-            11 on Out
+  return (matching (qelem) yield
+             0 on Empty yield
+             0 on Pearl yield   // Pearls are always on Empty cells, and drawn with attribute colors
+             1 on Corner(dir -> dir) yield
+             2 on Angle(dir -> dir) yield
+             3 on Limit(pointsTo -> pointsTo) yield
+             4 on Portal(id -> id, target -> target) yield
+             5 on Gate(closed -> closed) yield
+             6 on Spike(pointsTo -> pointsTo) yield
+             7 on Multispike yield
+             8 on RotableSpike yield
+             9 on Switch yield
+            10 on Wall yield
+            11 on Out yield
             boom(msgNotExpected("QElem")) otherwise
   )
 }

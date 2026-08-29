@@ -104,7 +104,7 @@ procedure ProcessMoveOf_To_(theBall,mdir) {
 // ---------
 function dirOfMoveDeterminedBy_And_(ball, mdir) {
   /* PRECOND: movementOccursWith_(ball)And_(mdir), that is, ball is different from NoBall, and if it is not moving, mdir is not Nothing */
-  return(choose goingTo(ball)  when (isMovingBall_(ball))
+  return(choose yield goingTo(ball)  when (isMovingBall_(ball)) yield
                 fromJust(mdir) otherwise)
 }
 
@@ -184,7 +184,7 @@ procedure ConsiderStoppingOrBouncingBall_MovingTo_Leaving_Entering_With_At_(ball
            { HitJewelAt_AndReturnTo_(nextPos, bpos(ball)) } // Jewel can be hit across borders...
          // If stopping against something spiky, ball pops
          if (not isSpiky_ComingFrom_WithRotablesTo_(nextQE, dir, currentTopSpikesDir()))
-           { DrawQBall_WithDHint_(stoppedBall_(ball), choose currentTopDHint() when (currentTopShowHint()) 
+           { DrawQBall_WithDHint_(stoppedBall_(ball), choose yield currentTopDHint() when (currentTopShowHint()) yield 
                                                              Nothing           otherwise) }
                       // bpos(ball) is the current pos, because no movement occurs
        } 
@@ -276,7 +276,7 @@ procedure RotateCurrentQElemTo_IfNeeded(dir) {
 procedure AdjustTopHintTo_(dir) {
   currentDHint := currentTopDHint()
   currentNHint := currentTopNHint()
-  SetTopHintTo_(choose just(fromJust(currentNHint)-1) when (just(dir)==currentDHint) 
+  SetTopHintTo_(choose yield just(fromJust(currentNHint)-1) when (just(dir)==currentDHint) yield 
                        Nothing                        otherwise)
 }
 

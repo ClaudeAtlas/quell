@@ -18,37 +18,37 @@
 function currentQBall() {
   code := currentNumWith_(ballColor())
   pos  := currentPos()
-  return (choose
-    NoBall when (code==0)
-    QBallTo(bpos <- pos, goingTo <- decodedDir_(code)   , beaming <- False) when (num_IsBetween_And_(code,  1,  4))
-    QBallTo(bpos <- pos, goingTo <- decodedDir_(code-10), beaming <- True)  when (num_IsBetween_And_(code, 11, 14))
+  return (choose yield
+    NoBall when (code==0) yield
+    QBallTo(bpos <- pos, goingTo <- decodedDir_(code)   , beaming <- False) when (num_IsBetween_And_(code,  1,  4)) yield
+    QBallTo(bpos <- pos, goingTo <- decodedDir_(code-10), beaming <- True)  when (num_IsBetween_And_(code, 11, 14)) yield
     QBallAt(bpos <- pos)                                                    otherwise) // ballColor stones are between 5 and 9
 }
 
 function currentQElemTo_(dir) { Move(dir); return (currentQElem()) } /* PRECOND: there is a cell to dir */
 function currentQElem() {
   /* PRECOND: * there is a qelem represented in the current cell */
-  return(matching (numStones(qelemColor())) select
-          Empty                 on 0
-          currentCorner()       on 1
-          currentAngle()        on 2
-          currentLimit()        on 3
-          currentPortal()       on 4
-          currentGate()         on 5
-          currentSpike()        on 6
-          Multispike            on 7
-          RotableSpike          on 8
-          Switch                on 9
-          Wall                  on 10
-          Out                   on 11
+  return(matching (numStones(qelemColor())) yield
+          Empty                 on 0 yield
+          currentCorner()       on 1 yield
+          currentAngle()        on 2 yield
+          currentLimit()        on 3 yield
+          currentPortal()       on 4 yield
+          currentGate()         on 5 yield
+          currentSpike()        on 6 yield
+          Multispike            on 7 yield
+          RotableSpike          on 8 yield
+          Switch                on 9 yield
+          Wall                  on 10 yield
+          Out                   on 11 yield
           boom(msgNoQElement()) otherwise)
 }
 
 function currentQToken() {
-  return(choose ABox    when (hasBox())
-                APearl  when (hasPearl())
-                AJewel  when (hasJewel())
-                ABall   when (hasBall())
+  return(choose yield ABox    when (hasBox()) yield
+                APearl  when (hasPearl()) yield
+                AJewel  when (hasJewel()) yield
+                ABall   when (hasBall()) yield
                 NoToken otherwise)
 }
 

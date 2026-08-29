@@ -77,20 +77,20 @@ function attrBColor() { return(Red)   }
 // Codes
 // ---------
 function codeOfQelem_(qelem) {
-  return (matching (qelem) select
-             0 on Empty
-             0 on Pearl   // Pearls are always on Empty cells, and drawn with attribute colors
-             1 on Corner
-             2 on Angle
-             3 on Limit
-             4 on Portal
-             5 on Gate
-             6 on Spike
-             7 on Multispike
-             8 on RotableSpike
-             9 on Switch
-            10 on Wall
-            11 on Out
+  return (matching (qelem) yield
+             0 on Empty yield
+             0 on Pearl yield   // Pearls are always on Empty cells, and drawn with attribute colors
+             1 on Corner(dir -> dir) yield
+             2 on Angle(dir -> dir) yield
+             3 on Limit(pointsTo -> pointsTo) yield
+             4 on Portal(id -> id, target -> target) yield
+             5 on Gate(closed -> closed) yield
+             6 on Spike(pointsTo -> pointsTo) yield
+             7 on Multispike yield
+             8 on RotableSpike yield
+             9 on Switch yield
+            10 on Wall yield
+            11 on Out yield
             boom(msgNotExpected("QElem")) otherwise
   )
 }

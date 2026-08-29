@@ -117,55 +117,55 @@ function rS()     { return(RotableSpike)                         }
 // ---------------------------
 //  Detection functions
 // ---------------------------
-function isEmpty_(qelem)        { return(matching (qelem)  select True  on Empty        False otherwise) }
-function isPearl_(qelem)        { return(matching (qelem)  select True  on Pearl        False otherwise) }
-function isWall_(qelem)         { return(matching (qelem)  select True  on Wall         False otherwise) }
-function isCorner_(qelem)       { return(matching (qelem)  select True  on Corner       False otherwise) }
-function isAngle_(qelem)        { return(matching (qelem)  select True  on Angle        False otherwise) }
-function isLimit_(qelem)        { return(matching (qelem)  select True  on Limit        False otherwise) }
-function isPortal_(qelem)       { return(matching (qelem)  select True  on Portal       False otherwise) }
-function isGate_(qelem)         { return(matching (qelem)  select True  on Gate         False otherwise) }
-function isSpike_(qelem)        { return(matching (qelem)  select True  on Spike        False otherwise) }
-function isMultispike_(qelem)   { return(matching (qelem)  select True  on Multispike   False otherwise) }
-function isRotableSpike_(qelem) { return(matching (qelem)  select True  on RotableSpike False otherwise) }
-function isSwitch_(qelem)       { return(matching (qelem)  select True  on Switch       False otherwise) }
-function isOut_(qelem)          { return(matching (qelem)  select True  on Out          False otherwise) }
+function isEmpty_(qelem)        { return(matching (qelem)  yield True  on Empty yield        False otherwise) }
+function isPearl_(qelem)        { return(matching (qelem)  yield True  on Pearl yield        False otherwise) }
+function isWall_(qelem)         { return(matching (qelem)  yield True  on Wall yield         False otherwise) }
+function isCorner_(qelem)       { return(matching (qelem)  yield True  on Corner(dir -> dir) yield       False otherwise) }
+function isAngle_(qelem)        { return(matching (qelem)  yield True  on Angle(dir -> dir) yield        False otherwise) }
+function isLimit_(qelem)        { return(matching (qelem)  yield True  on Limit(pointsTo -> pointsTo) yield        False otherwise) }
+function isPortal_(qelem)       { return(matching (qelem)  yield True  on Portal(id -> id, target -> target) yield       False otherwise) }
+function isGate_(qelem)         { return(matching (qelem)  yield True  on Gate(closed -> closed) yield         False otherwise) }
+function isSpike_(qelem)        { return(matching (qelem)  yield True  on Spike(pointsTo -> pointsTo) yield        False otherwise) }
+function isMultispike_(qelem)   { return(matching (qelem)  yield True  on Multispike yield   False otherwise) }
+function isRotableSpike_(qelem) { return(matching (qelem)  yield True  on RotableSpike yield False otherwise) }
+function isSwitch_(qelem)       { return(matching (qelem)  yield True  on Switch yield       False otherwise) }
+function isOut_(qelem)          { return(matching (qelem)  yield True  on Out yield          False otherwise) }
 
 function isOpen_(qelem) {
-  return(matching (qelem)  select True              on Empty
-                                  True              on Portal
-                                  True              on Switch
-                                  True              on Limit
-                                  not closed(qelem) on Gate
+  return(matching (qelem)  yield True              on Empty yield
+                                  True              on Portal(id -> id, target -> target) yield
+                                  True              on Switch yield
+                                  True              on Limit(pointsTo -> pointsTo) yield
+                                  not closed(qelem) on Gate(closed -> closed) yield
                                   False             otherwise)
 } 
 
 function isSpiky_ComingFrom_WithRotablesTo_(qelem, dir, rmdir) {
-  return (matching (qelem) select True on Multispike
-                                  dir==opposite(pointsTo(qelem)) on Spike
-                                  dir==opposite(fromJust(rmdir)) on RotableSpike
+  return (matching (qelem) yield True on Multispike yield
+                                  dir==opposite(pointsTo(qelem)) on Spike(pointsTo -> pointsTo) yield
+                                  dir==opposite(fromJust(rmdir)) on RotableSpike yield
                                   False                          otherwise)
 }
 
 // --------------------------- 
-function isNoJewel_(jewel)      { return(matching (jewel)  select True             on NoJewel False otherwise) }
-function isJewel_(jewel)        { return(matching (jewel)  select True             on QJewel  False otherwise) }
+function isNoJewel_(jewel)      { return(matching (jewel)  yield True             on NoJewel yield False otherwise) }
+function isJewel_(jewel)        { return(matching (jewel)  yield True             on QJewel(jpos -> jpos, hits -> hits) yield  False otherwise) }
 
-function isFound_(jewel)        { return(matching (jewel)  select (hits(jewel)==0) on QJewel  False otherwise) }
+function isFound_(jewel)        { return(matching (jewel)  yield (hits(jewel)==0) on QJewel(jpos -> jpos, hits -> hits) yield  False otherwise) }
 
 // ---------------------------      
-function isNoBall_(qball)       { return(matching (qball)  select True  on NoBall            False otherwise) }
-function isBall_(qball)         { return(matching (qball)  select False on NoBall            True  otherwise) }
-function isStaticBall_(qball)   { return(matching (qball)  select True  on QBallAt           False otherwise) }
-function isMovingBall_(qball)   { return(matching (qball)  select True  on QBallTo           False otherwise) }
-function isBeamingBall_(qball)  { return(matching (qball)  select beaming(qball) on QBallTo  False otherwise)}
+function isNoBall_(qball)       { return(matching (qball)  yield True  on NoBall yield            False otherwise) }
+function isBall_(qball)         { return(matching (qball)  yield False on NoBall yield            True  otherwise) }
+function isStaticBall_(qball)   { return(matching (qball)  yield True  on QBallAt(bpos -> bpos) yield           False otherwise) }
+function isMovingBall_(qball)   { return(matching (qball)  yield True  on QBallTo(bpos -> bpos, goingTo -> goingTo, beaming -> beaming) yield           False otherwise) }
+function isBeamingBall_(qball)  { return(matching (qball)  yield beaming(qball) on QBallTo(bpos -> bpos, goingTo -> goingTo, beaming -> beaming) yield  False otherwise)}
 
 // ---------------------------
-function isNoToken_(qtoken)     { return(matching (qtoken) select True  on NoToken           False  otherwise) }
-function isToken_(qtoken)       { return(matching (qtoken) select False on NoToken           True  otherwise) }
-function isABox_(qtoken)        { return(matching (qtoken) select True  on ABox              False otherwise) }
-function isAPearl_(qtoken)      { return(matching (qtoken) select True  on APearl            False otherwise) }
-function isAJewel_(qtoken)      { return(matching (qtoken) select True  on AJewel            False otherwise) }
+function isNoToken_(qtoken)     { return(matching (qtoken) yield True  on NoToken yield           False  otherwise) }
+function isToken_(qtoken)       { return(matching (qtoken) yield False on NoToken yield           True  otherwise) }
+function isABox_(qtoken)        { return(matching (qtoken) yield True  on ABox yield              False otherwise) }
+function isAPearl_(qtoken)      { return(matching (qtoken) yield True  on APearl yield            False otherwise) }
+function isAJewel_(qtoken)      { return(matching (qtoken) yield True  on AJewel yield            False otherwise) }
 
 // ---------------------------
 //  Ball modification
@@ -197,24 +197,24 @@ function ballBeamingOn_(quell) { return(beaming(ball(quel)))        } /* PRECOND
 //  Hint information on Quell
 // ---------------------------
 function firstTutorialDHintOn_(quell) {
-  return(choose just(head(solution(quell))) when (isTutorial(quell))
+  return(choose yield just(head(solution(quell))) when (isTutorial(quell)) yield
                 Nothing otherwise)
 }
 
 function dHintOn_(quell) {
-  return(choose just(elemAtIndex_In_(fromJust(rightMoves(quell))
-                                    ,solution(quell)))           when (not isNothing(rightMoves(quell)))
+  return(choose yield just(elemAtIndex_In_(fromJust(rightMoves(quell))
+                                    ,solution(quell)))           when (not isNothing(rightMoves(quell))) yield
                 Nothing                                          otherwise)
 }
 
 function nHintOn_(quell) {
-  return(choose just(minMoves(quell)-fromJust(rightMoves(quell))) when (not isNothing(rightMoves(quell)))
+  return(choose yield just(minMoves(quell)-fromJust(rightMoves(quell))) when (not isNothing(rightMoves(quell))) yield
                 Nothing                                           otherwise)
 }
 
 function dHintForNHint_On_(mi, quell) { 
-  return(choose just(elemAtIndex_In_(minMoves(quell)-fromJust(mi)
-                                    ,solution(quell)))            when (not isNothing(mi) && mi/=just(0))
+  return(choose yield just(elemAtIndex_In_(minMoves(quell)-fromJust(mi)
+                                    ,solution(quell)))            when (not isNothing(mi) && mi/=just(0)) yield
                 Nothing                                           otherwise)
 }
 
